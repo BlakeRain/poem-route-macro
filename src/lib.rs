@@ -221,14 +221,27 @@ impl Route {
 }
 
 struct Routes {
-    route: syn::Expr,
+    route: proc_macro2::TokenStream,
     routes: Vec<Route>,
 }
 
 impl Parse for Routes {
     fn parse(input: ParseStream) -> syn::Result<Self> {
-        let route = input.parse()?;
-        input.parse::<Token![,]>()?;
+        let route = {
+            let lookahead = input.lookahead1();
+            if lookahead.peek(syn::token::Brace) {
+                quote! {
+                    poem::Route::new()
+                }
+            } else {
+                let route = input.parse::<syn::Expr>()?;
+                input.parse::<Token![,]>()?;
+
+                quote! {
+                  #route
+                }
+            }
+        };
 
         let content;
         braced!(content in input);
