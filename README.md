@@ -16,7 +16,7 @@ fn build_routes(my_data: MyData) -> impl IntoEndpoint {
         *"/static"      { StaticFilesEndpoint::new("./static") }
 
         // Standard routes
-        "/"             index::index        GET
+        "/"             index               GET
         "/pastes"       paste::pastes       GET
         "/pastes/:id"   paste::paste        GET POST
 
@@ -24,6 +24,20 @@ fn build_routes(my_data: MyData) -> impl IntoEndpoint {
         *"/admin"       { admin::build_routes() }
     })
     .data(my_data)
+}
+
+// Handlers names are constructed by prefixing the method (followed by an underscore):
+
+// This handler is used in the GET "/" route, so we prefix 'get_' to it's name
+pub fn get_index() { ... }
+
+mod paste {
+    // Corresponds to: paste::pastes GET
+    pub fn get_pastes() { ... }
+
+    // Correspond to: paste::paste GET POST
+    pub fn get_paste(_: Path<PasteId>) { ... }
+    pub fn post_paste(_: Path<PasteId>) { ... }
 }
 ```
 
@@ -43,8 +57,8 @@ fn build_routes() -> Route {
 ## How to use
 
 The optional first argument to the `define_routes` macro is the expression to which all the routes
-are applied in a builder pattern. If this expression is missing, it defaults to `Route::new()`. As
-such, these two are equivalent:
+are applied in a builder pattern. If this expression is missing, it defaults to [`Route::new()`].
+As such, these two are equivalent:
 
 ```rust
 fn build_routes_no_expr() -> Route {
@@ -85,7 +99,7 @@ define_routes!({
 ```
 
 After the path string there should be an expression block, being some Rust statements in braces.
-This code should evaluate to something that implements `IntoEndpoint`.
+This code should evaluate to something that implements [`IntoEndpoint`].
 
 This can be useful to nest multiple routers together:
 
@@ -183,3 +197,8 @@ methods = method { method } ;
 
 method = "GET" | "POST" | "DELETE" | "PUT" ;
 ```
+
+[Poem]: https://github.com/poem-web/poem
+[`Route`]: https://docs.rs/poem/latest/poem/struct.Route.html
+[`Route::new()`]: https://docs.rs/poem/latest/poem/struct.Route.html#method.new
+[`IntoEndpoint`]: https://docs.rs/poem/latest/poem/endpoint/trait.IntoEndpoint.html
