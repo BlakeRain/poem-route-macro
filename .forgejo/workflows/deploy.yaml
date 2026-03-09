@@ -52,10 +52,11 @@ jobs:
       - name: Publish to registry
         run: cargo publish --registry blakerain
 
-      - name: Create release
-        uses: https://git.blakerain.com/actions/gitea-release-action@forgejo
-        with:
-          title: "Release ${{ github.ref_name }}"
-          files: |
-            LICENSE
-            README.md
+      # - name: Create release
+      #   uses: actions/forgejo-release@v2.11.1
+      #   with:
+      #     title: "Release ${{ github.ref_name }}"
+      #     direction: upload
+      #     files: |
+      #       LICENSE
+      #       README.md
