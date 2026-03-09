@@ -1,0 +1,42 @@
+name: Check
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check:
+    runs-on: docker
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Install the stable rust toolchain
+        uses: https://git.blakerain.com/actions/setup-rust-toolchain@forgejo
+        env:
+          RUSTUP_PERMIT_COPY_RENAME:
+        with:
+          toolchain: stable
+          components: clippy, rustfmt
+          cache: "false"
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Run cargo check
+        run: cargo check
+
+      - name: Run cargo clippy
+        run: cargo clippy
+
+      - name: Check formatting
+        run: |
+          cargo fmt --all -- --check
+
+      - name: Check typos
+        uses: crate-ci/typos@master
+
