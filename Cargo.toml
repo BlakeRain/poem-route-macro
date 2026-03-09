@@ -1,6 +1,6 @@
 [package]
 name = "poem-route-macro"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Blake Rain <blake.rain@blakerain.com>"]
 description = "Simple macro for easier Poem route definition"
 repository = "https://git.blakerain.com/BlakeRain/poem-route-macro"
