@@ -10,9 +10,6 @@ keywords = ["poem", "route", "macro"]
 license = "BSD3"
 edition = "2021"
 
-[registries.blakerain]
-index = "sparse+https://git.blakerain.com/api/packages/BlakeRain/cargo/"
-
 [lib]
 proc-macro = true
 
