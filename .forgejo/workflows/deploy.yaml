@@ -1,0 +1,61 @@
+name: Deploy
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_REGISTRIES_BLAKERAIN_TOKEN: Bearer ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: docker
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v4
+
+      - name: Install the stable rust toolchain
+        uses: https://git.blakerain.com/actions/setup-rust-toolchain@forgejo
+        env:
+          RUSTUP_PERMIT_COPY_RENAME:
+        with:
+          toolchain: stable
+          cache: "false"
+
+      - name: Extract version from tag
+        id: get_version
+        run: |
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "Extracted version: $VERSION"
+
+      - name: Verify version matches Cargo.toml
+        run: |
+          CARGO_VERSION=$(grep '^version = ' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          TAG_VERSION=${{ steps.get_version.outputs.VERSION }}
+          echo "Cargo.toml version: $CARGO_VERSION"
+          echo "Tag version: $TAG_VERSION"
+          if [ "$CARGO_VERSION" != "$TAG_VERSION" ]; then
+            echo "ERROR: Version mismatch!"
+            echo "Cargo.toml has version '$CARGO_VERSION' but tag is 'v$TAG_VERSION'"
+            exit 1
+          fi
+          echo "Versions match!"
+
+      - name: Run tests
+        run: cargo test
+
+      - name: Dry run publish
+        run: cargo publish --dry-run --registry blakerain
+
+      - name: Publish to registry
+        run: cargo publish --registry blakerain
+
+      - name: Create release
+        uses: https://git.blakerain.com/actions/gitea-release-action@forgejo
+        with:
+          title: "Release ${{ github.ref_name }}"
+          files: |
+            LICENSE
+            README.md
