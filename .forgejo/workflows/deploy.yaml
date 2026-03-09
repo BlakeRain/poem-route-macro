@@ -6,7 +6,7 @@ on:
       - 'v*'
 
 env:
-  CARGO_REGISTRIES_BLAKERAIN_TOKEN: Bearer ${{ secrets.GITHUB_TOKEN }}
+  CARGO_REGISTRIES_BLAKERAIN_TOKEN: Bearer ${{ secrets.FORGEJO_TOKEN }}
 
 jobs:
   deploy:
